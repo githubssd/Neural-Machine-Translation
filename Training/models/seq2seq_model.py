@@ -18,3 +18,6 @@ def tockenizerEnglish(text):
     return [tock.text for tok in spacy_eng.tockenixer(text)]
 
 
+germen  = Filed(tocke
+# build vocab for english
+
