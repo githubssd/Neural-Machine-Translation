@@ -19,17 +19,17 @@ def tockenizerEnglish(text):
     return [tock.text for tok in spacy_eng.tockenixer(text)]
 
 
-germen = Field(tockenize=tockenizerGermen, lower=True,
+german = Field(tockenize=tockenizerGermen, lower=True,
                init_tocken='<sos>', eos_tocken='<eos>')
 
 english = Field(tockenize=tockenizerEnglish, lower=True,
                 init_tocken='<sos>', eos_tocken='<eos>')
 
 train_data, valid_data, test_data = Multi30k.splits(exts=('.de', '.en'),
-                                                    fileds=(germen, english))
+                                                    fileds=(german, english))
 
 
-germen.build_vocab(train_data, max_size=10000, min_freq=2)
+german.build_vocab(train_data, max_size=10000, min_freq=2)
 english.build_vocab(train_data, max_size=10000, min_freq=2)
 
 
@@ -48,6 +48,7 @@ class Encoder(nn.Module):
 
         embedding = self.dropout(self.embedding(x))
         output, (hidden, cell) = self.lstm(embedding)
+
         return hidden, cell
 
 
@@ -71,6 +72,7 @@ class Decoder(nn.Module):
 
         predictions = self.fc(output)
         predictions = predictions.squeeze(0)
+
         return predictions, hidden, cell
 
 
