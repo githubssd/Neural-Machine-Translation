@@ -36,19 +36,42 @@ english.build_vocab(train_data, max_size=10000, min_freq=2)
 class Encoder(nn.Module):
     def __init__(self, input_size, embedding_size, hidden_size, num_layers, p):
         super(Encoder, self).__init__()
+
         self.hidden_size = hidden_size
         self.num_layers = num_layers
 
         self.dropout = nn.Dropout(p)
         self.embedding = nn.Embedding(input_size, embedding_size)
-        self.rnn = nn.LSTM(embedding_size, hidden_size, num_layers, dropout=p)
+        self.lstm = nn.LSTM(embedding_size, hidden_size, num_layers, dropout=p)
 
     def forward(self, x):
-        
+
+        embedding = self.dropout(self.embedding(x))
+        output, (hidden, cell) = self.lstm(embedding)
+        return hidden, cell
 
 
 class Decoder(nn.Module):
-    pass
+    def __init__(self, input_size, embedding_size, hidden_size, num_layers, output_size, p):
+        super(Decoder, self).__init__()
+
+        self.hidden_size = hidden_size
+        self.num_layers = num_layers
+
+        self.dropout = nn.Dropout(p)
+        self.embedding = nn.Embedding(input_size, embedding_size)
+        self.lstm = nn.LSTM(embedding_size, hidden_size, num_layers, dropout=p)
+        self.fc = nn.Linear(hidden_size, output_size)
+
+    def forward(self, x):
+
+        x = x.unsqueeze(0)
+        embedding = self.dropout(self.embedding(x))
+        output, (hidden, cell) = self.lstm(embedding)
+
+        predictions = self.fc(output)
+        predictions = predictions.squeeze(0)
+        return predictions, hidden, cell
 
 
 class Seq2Seq(nn.Module):
